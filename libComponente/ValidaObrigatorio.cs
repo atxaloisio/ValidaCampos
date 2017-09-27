@@ -367,52 +367,44 @@ namespace libComponente
             bVer = vRet;           
         }
 
+        public List<string> ValidaControls(Control.ControlCollection Controle)
+        {
+            bool rVer = true;            
+            List<string> lstMsg = new List<string>();
+
+
+            foreach (Control ctrl in Controle)
+            {
+                if ((ctrl is Panel) || (ctrl is GroupBox))
+                {
+                    lstMsg.AddRange(ValidaControls(ctrl.Controls));                    
+                }
+                else
+                {
+                    ValidarCtrl(ctrl, out rVer);
+                    if (!rVer)
+                    {
+                        lstMsg.Add(this.GetError(ctrl));
+                    }
+                }
+            }           
+            return lstMsg;
+        }
+
         public bool Validar(bool exibeMsg = true)
         {
             bool bVer = true;
             string msg = string.Empty;
             List<string> lstMsg = new List<string>();
             bool retorno = true;
+           
+            lstMsg.AddRange(ValidaControls(this.ContainerControl.Controls));
 
-            foreach (Control ctrl in this.ContainerControl.Controls)
+
+            
+            if (lstMsg.Count > 0)
             {
-                if (ctrl is Panel)
-                {
-                    foreach (Control lControl in ctrl.Controls)
-                    {
-                        ValidarCtrl(lControl, out bVer);
-                        if (!bVer)
-                        {
-                            retorno = false;
-                            lstMsg.Add(this.GetError(lControl));
-                            //if (msg != string.Empty)
-                            //{
-                            //    msg = msg + "\n" + this.GetError(lControl);
-                            //}
-                            //else
-                            //{
-                            //    msg = this.GetError(lControl);
-                            //}
-                        }
-                    }
-                }
-                else
-                {
-                    ValidarCtrl(ctrl, out bVer);
-                    if (!bVer)
-                    {
-                        retorno = false;
-                        lstMsg.Add(this.GetError(ctrl));
-                        //if (msg != string.Empty)
-                        //{
-                        //    msg = msg + "\n" + this.GetError(ctrl);
-                        //}
-                        //else
-                        //{
-                        //    msg = this.GetError(ctrl);
-                        //}
-                    }
-                }    
+                retorno = false;                
             }
 
             if ((!retorno) & (exibeMsg))
